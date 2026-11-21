@@ -1,0 +1,11 @@
+{
+  "attacker_ips": {
+    "203.0.113.45": "ssh brute force then login",
+    "198.51.100.77": "username enumeration",
+    "198.51.100.23": "web scanning",
+    "192.0.2.14": "sql injection",
+    "192.0.2.99": "xss",
+    "192.0.2.150": "path traversal",
+    "198.51.100.200": "request flood (no rule)"
+  }
+}

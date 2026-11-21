@@ -1,0 +1,74 @@
+# Detection rules as code. Edit thresholds here, no Python changes needed.
+# MITRE ATT&CK mappings are indicative and should be reviewed for your environment.
+rules:
+  - id: R1
+    name: SSH brute-force attempt
+    type: threshold
+    source: ssh
+    event: failed_login
+    threshold: 5
+    window_minutes: 5
+    severity: High
+    mitre: {id: T1110, name: Brute Force, tactic: Credential Access}
+    playbook:
+      - Block or rate-limit the source IP at the firewall
+      - Check whether any login from this IP succeeded
+      - Enforce key-based SSH login and install fail2ban
+
+  - id: R2
+    name: Username enumeration
+    type: distinct
+    source: ssh
+    event: failed_login
+    distinct_field: username
+    threshold: 3
+    window_minutes: 10
+    severity: Medium
+    mitre: {id: T1087, name: Account Discovery, tactic: Discovery}
+    playbook:
+      - Block the source IP
+      - Review which of the guessed usernames really exist on the server
+      - Disable password logins for accounts that do not need them
+
+  - id: R3
+    name: Successful login after repeated failures
+    type: success_after_failures
+    source: ssh
+    threshold: 5
+    window_minutes: 10
+    severity: Critical
+    mitre: {id: T1078, name: Valid Accounts, tactic: Initial Access}
+    playbook:
+      - Treat the account as compromised, disable it and force a password reset
+      - Review the commands and sessions of that login
+      - Look for other logins from the same IP and rotate any exposed keys
+
+  - id: R4
+    name: Web scanning (many 404 responses)
+    type: threshold
+    source: web
+    status: 404
+    threshold: 10
+    window_minutes: 5
+    severity: Medium
+    mitre: {id: T1595.003, name: Wordlist Scanning, tactic: Reconnaissance}
+    playbook:
+      - Rate-limit or block the scanning IP
+      - Check that none of the probed paths (for example /.env or /backup.zip) actually exist
+      - Consider a web application firewall
+
+  - id: R5
+    name: Malicious request pattern
+    type: pattern
+    source: web
+    field: path
+    severity: High
+    mitre: {id: T1190, name: Exploit Public-Facing Application, tactic: Initial Access}
+    patterns:
+      SQL injection: '(union\s+select|or\s+1\s*=\s*1|''--|sleep\(|information_schema)'
+      Cross-site scripting: '(<script|onerror\s*=|javascript:)'
+      Path traversal: '(\.\./|/etc/passwd)'
+    playbook:
+      - Check the server response and whether the request reached the database or file system
+      - Block the source IP and review application input validation
+      - Deploy or tune web application firewall rules
