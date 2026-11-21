@@ -17,6 +17,35 @@ SQLite and Streamlit.
 - **Resilient by design:** bounded line length, tolerant decoding, streaming file parser, O(n log n) window search, atomic database writes, schema-validated model output and automatic fallback to rule-based explanations when the model is unavailable.
 - **Tested:** 75 automated tests, including a fake LM Studio server for the AI paths, run on every push by GitHub Actions.
 
+## Screenshots
+
+Sample run on the bundled logs: 4,397 events parsed, 15 alerts (8 from rules, 7 from ML).
+
+![Summary](docs/screenshots/01-summary.png)
+
+**Overview.** Alerts by severity and the most active source IPs. The largest bar is a request flood made of valid requests that no rule describes; only the ML detector catches it.
+
+![Overview charts](docs/screenshots/02-overview-charts.png)
+
+**MITRE ATT&CK tactics** seen in the alerts, and the **alert timeline** (dot size = number of events).
+
+![MITRE tactics](docs/screenshots/03-mitre-tactics.png)
+![Alert timeline](docs/screenshots/04-alert-timeline.png)
+
+**Alert table** with severity and engine filters, clickable ATT&CK technique links and CSV export. Select a row to triage it.
+
+![Alert table](docs/screenshots/05-alert-table.png)
+
+**AI triage with a local model.** A local LLM (Gemma via LM Studio) explains the selected alert, gives the likely attack, a false-positive estimate and defensive next steps. The output is labelled as AI-generated and is advisory only.
+
+![AI triage, SQL injection](docs/screenshots/07-ai-triage-sqli.png)
+![AI triage, next steps](docs/screenshots/08-ai-triage-next-steps.png)
+![AI triage, ML alert](docs/screenshots/09-ai-triage-ml-alert.png)
+
+**Graceful fallback.** Before the AI is asked, or when the model is unavailable, the panel shows a deterministic explanation from the rule playbook and says so.
+
+![Rule-based fallback](docs/screenshots/06-fallback-explanation.png)
+
 ## Architecture
 
 ```mermaid
